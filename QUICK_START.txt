@@ -1,0 +1,42 @@
+Crop Price Forecasting Project - Quick Start
+
+1. Activate virtual environment
+
+   .\.venv\Scripts\activate
+
+2. Run statistical modeling first
+
+   python notebooks/02_statistical_models.py --crop "Tomato" --state "Tamil Nadu"
+
+3. Train XGBoost
+
+   python notebooks/03_ml_models.py --crop "Tomato" --state "Tamil Nadu"
+
+4. Train LSTM
+
+   python notebooks/04_lstm_model.py --crop "Tomato" --state "Tamil Nadu"
+
+5. Retrain full stack with ensemble, advisory, and logging
+
+   python run_pipeline.py --train --crop "Tomato" --state "Tamil Nadu"
+
+6. Start FastAPI
+
+   uvicorn api.main:app --reload
+
+7. Start Streamlit dashboard
+
+   streamlit run app/streamlit_app.py
+
+8. Optional refresh data pipeline
+
+   python -m src.data.download_data
+   python -m src.data.json_to_parquet --resume
+   python run_pipeline.py --train --crop "Tomato" --state "Tamil Nadu"
+
+Useful API endpoints:
+- /forecast
+- /explain
+- /advisory
+- /history
+- /monitoring

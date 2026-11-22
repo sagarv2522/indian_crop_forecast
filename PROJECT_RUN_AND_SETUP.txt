@@ -1,0 +1,99 @@
+Crop Price Forecasting Project - Setup and Run Guide
+
+1. Prepare the environment
+
+   - Install Python 3.11 or compatible
+   - Create and activate the virtual environment:
+     .\.venv\Scripts\activate
+   - Install dependencies:
+     pip install -r requirements.txt
+
+2. Set required environment variables
+
+   PowerShell example:
+
+   $env:DATA_GOV_IN_API_KEY="your_api_key_here"
+   $env:DATA_GOV_IN_RESOURCE_ID="your_resource_id_here"
+
+3. Make sure the data folders exist or can be created
+
+   - data/raw/
+   - data/parquet/
+   - data/processed/
+   - data/prediction_logs.duckdb (created automatically when forecasts are saved)
+
+4. Refresh or prepare the data
+
+   python -m src.data.download_data
+   python -m src.data.json_to_parquet --resume
+
+5. Start from statistical modeling
+
+   python notebooks/02_statistical_models.py --crop "Tomato" --state "Tamil Nadu"
+
+6. Train the ML models
+
+   python notebooks/03_ml_models.py --crop "Tomato" --state "Tamil Nadu"
+   python notebooks/04_lstm_model.py --crop "Tomato" --state "Tamil Nadu"
+
+7. Retrain the full stack
+
+   python run_pipeline.py --train --crop "Tomato" --state "Tamil Nadu"
+
+   This trains:
+   - ARIMA
+   - XGBoost
+   - LSTM
+   - ensemble
+
+   It also saves forecast logs for monitoring and drift analysis.
+
+8. Run the API
+
+   uvicorn api.main:app --reload
+
+   Useful endpoints:
+   - /health
+   - /forecast
+   - /explain
+   - /advisory
+   - /history
+   - /monitoring
+   - /series
+
+9. Run the dashboard
+
+   streamlit run app/streamlit_app.py
+
+   The dashboard supports:
+   - ARIMA, XGBoost, LSTM, and ensemble forecasts
+   - SHAP explanation for XGBoost and ensemble
+   - crop advisory generation
+   - saved prediction history
+   - drift summary
+
+10. Weekly automation
+
+   The scheduled retrain workflow is in:
+   .github/workflows/weekly_retrain.yml
+
+   It performs:
+   - data download
+   - Parquet conversion
+   - retraining
+
+11. Check project status quickly
+
+   python -m src.mlops.project_status
+
+   Use this to confirm which key artifacts, docs, and data outputs are present.
+
+12. If you only want the shortest order of commands
+
+   .\.venv\Scripts\activate
+   python notebooks/02_statistical_models.py --crop "Tomato" --state "Tamil Nadu"
+   python notebooks/03_ml_models.py --crop "Tomato" --state "Tamil Nadu"
+   python notebooks/04_lstm_model.py --crop "Tomato" --state "Tamil Nadu"
+   python run_pipeline.py --train --crop "Tomato" --state "Tamil Nadu"
+   uvicorn api.main:app --reload
+   streamlit run app/streamlit_app.py

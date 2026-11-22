@@ -1,0 +1,45 @@
+Crop Price Forecasting Project - Setup Checklist
+
+Before running anything, make sure these are ready:
+
+1. Python environment
+
+   - Python 3.11 or compatible
+   - Virtual environment created at .\.venv
+   - Dependencies installed with:
+     pip install -r requirements.txt
+
+2. Required environment variables
+
+   - DATA_GOV_IN_API_KEY
+   - DATA_GOV_IN_RESOURCE_ID
+
+   Example PowerShell:
+
+   $env:DATA_GOV_IN_API_KEY="your_api_key_here"
+   $env:DATA_GOV_IN_RESOURCE_ID="your_resource_id_here"
+
+3. Data files and folders
+
+   - data/raw/ for downloaded JSON files
+   - data/parquet/ for converted partitioned Parquet files
+   - data/processed/clean_prices.csv if you want the CSV fallback
+
+4. Recommended project order
+
+   1. notebooks/02_statistical_models.py
+   2. notebooks/03_ml_models.py
+   3. notebooks/04_lstm_model.py
+   4. src.mlops.retrain_pipeline
+   5. api.main
+   6. app.streamlit_app
+
+5. Optional but useful
+
+   - GitHub Actions enabled for .github/workflows/weekly_retrain.yml
+   - A local DuckDB file for prediction logs at data/prediction_logs.duckdb
+
+6. First command to run for a clean data refresh
+
+   python -m src.data.download_data
+

@@ -1,0 +1,38 @@
+name: weekly-retrain
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    env:
+      DATA_GOV_IN_API_KEY: ${{ secrets.DATA_GOV_IN_API_KEY }}
+      DATA_GOV_IN_RESOURCE_ID: ${{ secrets.DATA_GOV_IN_RESOURCE_ID }}
+      DATA_SOURCE: ${{ secrets.DATA_SOURCE || 'azure' }}
+      AZURE_BLOB_BASE_URL: ${{ secrets.AZURE_BLOB_BASE_URL }}
+      AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
+      AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+      AZURE_YEAR_START: ${{ secrets.AZURE_YEAR_START || '2021' }}
+      AZURE_YEAR_END: ${{ secrets.AZURE_YEAR_END || '2026' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download latest data
+        run: python -m src.data.download_data
+
+      - name: Convert JSON to Parquet
+        run: python -m src.data.json_to_parquet --resume
+
+      - name: Retrain models
+        run: python -m src.mlops.retrain_pipeline --crop Tomato --state "Tamil Nadu"
